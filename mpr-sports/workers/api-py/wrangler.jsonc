@@ -1,0 +1,7 @@
+{
+  "name": "my-project-api-py",
+  "main": "worker.py",
+  "compatibility_date": "2026-02-26",
+  // Enable Python Workers runtime
+  "compatibility_flags": ["python_workers"],
+}
