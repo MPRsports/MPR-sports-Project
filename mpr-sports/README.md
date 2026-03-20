@@ -2,6 +2,23 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Staging Password Gate
+
+The app supports a simple shared password gate using `VITE_SITE_PASSWORD`.
+
+- Local setup:
+  - Use `.env.local` with:
+
+```env
+VITE_SITE_PASSWORD=your_password_here
+```
+
+- Staging/deploy setup:
+  - Set `VITE_SITE_PASSWORD` in your hosting environment variables (for example Cloudflare Pages/Workers build settings).
+  - Vite injects `VITE_` variables at build time, so the value must be present in the staging build environment.
+
+- If `VITE_SITE_PASSWORD` is not set, the gate is disabled.
+
 Currently, two official plugins are available:
 
 ## React Compiler
@@ -69,7 +86,7 @@ export default defineConfig([
 ]);
 ```
 
-**Start Dev Server**
+## Start Dev Server
 
 - **Prerequisites:** Node.js 22.12+ or 20.19+ (recommended: Node 22).
 - **Quick start:**
@@ -100,7 +117,7 @@ brew unlink node@22 && brew link --force node@22
 
 - If `npm ci` fails, run `npm install` instead.
 
-**Run Local Worker (Python)**
+## Run Local Worker (Python)
 
 - **Prerequisites:** Wrangler CLI (supports Python Workers) and Python Workers enabled for your account/environment.
 - **Install Wrangler (global or dev dependency):**
