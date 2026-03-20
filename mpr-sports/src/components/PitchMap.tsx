@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 
 export type Team = "home" | "away";
 
@@ -77,7 +77,7 @@ export function PitchMap({
   markerRadiusM = 0.9,
   showLabels = true,
 }: PitchMapProps) {
-  const dims: FieldDimensions = { ...DEFAULT_FIELD, ...field };
+  const dims: FieldDimensions = useMemo(() => ({ ...DEFAULT_FIELD, ...field }), [field]);
   const L = dims.lengthM;
   const W = dims.widthM;
 
