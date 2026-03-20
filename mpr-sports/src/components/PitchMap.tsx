@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 
 export type Team = "home" | "away";
 
@@ -51,12 +51,7 @@ const penaltyMarkR = 0.2; // dot radius (meters)
  * Convert normalized coordinates (0..1) into meters within the pitch.
  * This is the key math that later works the same for realtime data.
  */
-function normalizedToMeters(
-  x: number,
-  y: number,
-  field: FieldDimensions,
-  opts: { invertY?: boolean; flipX?: boolean }
-) {
+function normalizedToMeters(x: number, y: number, field: FieldDimensions, opts: { invertY?: boolean; flipX?: boolean }) {
   const xN = clamp01(x);
   const yN = clamp01(y);
 
@@ -69,15 +64,8 @@ function normalizedToMeters(
   return { xM, yM };
 }
 
-export function PitchMap({
-  field,
-  players,
-  invertY = false,
-  flipX = false,
-  markerRadiusM = 0.9,
-  showLabels = true,
-}: PitchMapProps) {
-  const dims: FieldDimensions = { ...DEFAULT_FIELD, ...field };
+export function PitchMap({ field, players, invertY = false, flipX = false, markerRadiusM = 0.9, showLabels = true }: PitchMapProps) {
+  const dims: FieldDimensions = useMemo(() => ({ ...DEFAULT_FIELD, ...field }), [field]);
   const L = dims.lengthM;
   const W = dims.widthM;
 
@@ -106,151 +94,44 @@ export function PitchMap({
 
   return (
     <div className="pitchWrap" style={{ aspectRatio: `${L} / ${W}` }}>
-      <svg
-        className="pitchSvg"
-        viewBox={`0 0 ${L} ${W}`}
-        width="100%"
-        height="100%"
-        preserveAspectRatio="xMidYMid meet"
-        role="img"
-        aria-label="Football pitch"
-      >
+      <svg className="pitchSvg" viewBox={`0 0 ${L} ${W}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Football pitch">
         {/* Pitch background */}
-        <rect
-          x={0}
-          y={0}
-          width={L}
-          height={W}
-          rx={1.2}
-          ry={1.2}
-          className="pitchBg"
-        />
+        <rect x={0} y={0} width={L} height={W} rx={1.2} ry={1.2} className="pitchBg" />
 
         {/* Outer lines */}
-        <rect
-          x={0.5}
-          y={0.5}
-          width={L - 1}
-          height={W - 1}
-          fill="none"
-          className="pitchLine"
-          strokeWidth={0.25}
-        />
+        <rect x={0.5} y={0.5} width={L - 1} height={W - 1} fill="none" className="pitchLine" strokeWidth={0.25} />
 
         {/* Halfway line */}
-        <line
-          x1={L / 2}
-          y1={0.5}
-          x2={L / 2}
-          y2={W - 0.5}
-          className="pitchLine"
-          strokeWidth={0.25}
-        />
+        <line x1={L / 2} y1={0.5} x2={L / 2} y2={W - 0.5} className="pitchLine" strokeWidth={0.25} />
 
         {/* Center circle */}
-        <circle
-          cx={L / 2}
-          cy={W / 2}
-          r={centerCircleR}
-          fill="none"
-          className="pitchLine"
-          strokeWidth={0.25}
-        />
+        <circle cx={L / 2} cy={W / 2} r={centerCircleR} fill="none" className="pitchLine" strokeWidth={0.25} />
 
         {/* Center mark */}
         <circle cx={L / 2} cy={W / 2} r={0.2} className="pitchMark" />
 
         {/* Penalty marks (11m from each goal line, centered) */}
-        <circle
-          cx={penaltyMarkDist}
-          cy={W / 2}
-          r={penaltyMarkR}
-          className="pitchMark"
-        />
-        <circle
-          cx={L - penaltyMarkDist}
-          cy={W / 2}
-          r={penaltyMarkR}
-          className="pitchMark"
-        />
+        <circle cx={penaltyMarkDist} cy={W / 2} r={penaltyMarkR} className="pitchMark" />
+        <circle cx={L - penaltyMarkDist} cy={W / 2} r={penaltyMarkR} className="pitchMark" />
 
         {/* Penalty areas */}
-        <rect
-          x={0.5}
-          y={penaltyY}
-          width={penaltyAreaDepth}
-          height={penaltyAreaWidth}
-          fill="none"
-          className="pitchLine"
-          strokeWidth={0.25}
-        />
-        <rect
-          x={L - 0.5 - penaltyAreaDepth}
-          y={penaltyY}
-          width={penaltyAreaDepth}
-          height={penaltyAreaWidth}
-          fill="none"
-          className="pitchLine"
-          strokeWidth={0.25}
-        />
+        <rect x={0.5} y={penaltyY} width={penaltyAreaDepth} height={penaltyAreaWidth} fill="none" className="pitchLine" strokeWidth={0.25} />
+        <rect x={L - 0.5 - penaltyAreaDepth} y={penaltyY} width={penaltyAreaDepth} height={penaltyAreaWidth} fill="none" className="pitchLine" strokeWidth={0.25} />
 
         {/* Goal areas */}
-        <rect
-          x={0.5}
-          y={goalAreaY}
-          width={goalAreaDepth}
-          height={goalAreaWidth}
-          fill="none"
-          className="pitchLine"
-          strokeWidth={0.25}
-        />
-        <rect
-          x={L - 0.5 - goalAreaDepth}
-          y={goalAreaY}
-          width={goalAreaDepth}
-          height={goalAreaWidth}
-          fill="none"
-          className="pitchLine"
-          strokeWidth={0.25}
-        />
+        <rect x={0.5} y={goalAreaY} width={goalAreaDepth} height={goalAreaWidth} fill="none" className="pitchLine" strokeWidth={0.25} />
+        <rect x={L - 0.5 - goalAreaDepth} y={goalAreaY} width={goalAreaDepth} height={goalAreaWidth} fill="none" className="pitchLine" strokeWidth={0.25} />
 
         {/* Goals (simple rectangles drawn just outside the pitch) */}
-        <rect
-          x={-goalDepthVisual}
-          y={goalY}
-          width={goalDepthVisual}
-          height={goalWidth}
-          fill="none"
-          className="pitchLine"
-          strokeWidth={0.25}
-        />
-        <rect
-          x={L}
-          y={goalY}
-          width={goalDepthVisual}
-          height={goalWidth}
-          fill="none"
-          className="pitchLine"
-          strokeWidth={0.25}
-        />
+        <rect x={-goalDepthVisual} y={goalY} width={goalDepthVisual} height={goalWidth} fill="none" className="pitchLine" strokeWidth={0.25} />
+        <rect x={L} y={goalY} width={goalDepthVisual} height={goalWidth} fill="none" className="pitchLine" strokeWidth={0.25} />
 
         {/* Players */}
         {mappedPlayers.map((p) => (
           <g key={p.id}>
-            <circle
-              cx={p.xM}
-              cy={p.yM}
-              r={markerRadiusM}
-              className={p.team === "away" ? "playerDot away" : "playerDot home"}
-            />
+            <circle cx={p.xM} cy={p.yM} r={markerRadiusM} className={p.team === "away" ? "playerDot away" : "playerDot home"} />
             {showLabels && p.name ? (
-              <text
-                x={p.xM}
-                y={p.yM - markerRadiusM - 0.6}
-                fontSize={2.2}
-                textAnchor="middle"
-                className="playerLabel"
-              >
+              <text x={p.xM} y={p.yM - markerRadiusM - 0.6} fontSize={2.2} textAnchor="middle" className="playerLabel">
                 {p.name}
               </text>
             ) : null}
