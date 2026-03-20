@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { PitchMap } from "./components/PitchMap";
+import { AnnotationGuidePage } from "./components/AnnotationGuidePage";
 import { samplePayload } from "./data/samplePositions";
 
 type Player = (typeof samplePayload.players)[number];
@@ -14,7 +15,17 @@ function wrap01(n: number) {
   return n;
 }
 
+type PageView = "pitch" | "guide";
+
+function getCurrentView(): PageView {
+  const hashPath = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "";
+  const path = hashPath || window.location.pathname;
+  return path.startsWith("/guia-anotacao") ? "guide" : "pitch";
+}
+
 export default function App() {
+  const [view, setView] = useState<PageView>(() => getCurrentView());
+
   // Backend target state:
   // - Keep this `players` state.
   // - Replace its source from `samplePayload.players` to your API stream payload.
@@ -36,6 +47,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (view !== "pitch") {
+      return;
+    }
+
     // BACKEND INTEGRATION CHECKLIST (replace this effect)
     // 1) Open your realtime source here (WebSocket/SSE) or start polling with fetch.
     // 2) Parse incoming payload into `Player[]` with normalized x/y in the 0..1 range.
@@ -62,15 +77,50 @@ export default function App() {
     }, 120); // update every 120ms
 
     return () => window.clearInterval(id);
-  }, [drift]);
+  }, [drift, view]);
+
+  useEffect(() => {
+    const syncView = () => setView(getCurrentView());
+    window.addEventListener("popstate", syncView);
+    window.addEventListener("hashchange", syncView);
+    return () => {
+      window.removeEventListener("popstate", syncView);
+      window.removeEventListener("hashchange", syncView);
+    };
+  }, []);
+
+  const navigate = (target: PageView) => {
+    const nextPath = target === "guide" ? "/guia-anotacao" : "/";
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState({}, "", nextPath);
+    }
+    setView(target);
+  };
 
   return (
-    <div className="appPage">
-      <h1>Pitch Map (SVG)</h1>
+    <div>
+      <nav className="topNav">
+        <button type="button" className={view === "pitch" ? "navItem active" : "navItem"} onClick={() => navigate("pitch")}>
+          Pitch Map
+        </button>
+        <button type="button" className={view === "guide" ? "navItem active" : "navItem"} onClick={() => navigate("guide")}>
+          Guia de Anotacao
+        </button>
+      </nav>
 
-      <div className="card">
-        <PitchMap field={samplePayload.field} players={players} invertY={false} flipX={false} showLabels={true} />
-        <div className="hint">Players move because React state updates on an interval. Replace the interval with your realtime tracking feed later.</div>
+      <div className="pageWrap">
+        {view === "guide" ? (
+          <AnnotationGuidePage />
+        ) : (
+          <div className="appPage">
+            <h1>Pitch Map (SVG)</h1>
+
+            <div className="card">
+              <PitchMap field={samplePayload.field} players={players} invertY={false} flipX={false} showLabels={true} />
+              <div className="hint">Players move because React state updates on an interval. Replace the interval with your realtime tracking feed later.</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
