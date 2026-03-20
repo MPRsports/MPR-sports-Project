@@ -1,14 +1,18 @@
 import "./App.css";
+import { AnnotationGuidePage } from "./components/AnnotationGuidePage";
 
-function App() {
+export default function App() {
   return (
-    <div className="coming-soon-root">
-      <div className="coming-soon-card">
-        <h1 className="brand">MPR SPORTS(STAGING)</h1>
-        <h2 className="tag">COMING SOON</h2>
+    <div>
+      <nav className="topNav">
+        <button type="button" className="navItem active">
+          Guia de Anotacao
+        </button>
+      </nav>
+
+      <div className="pageWrap">
+        <AnnotationGuidePage />
       </div>
     </div>
   );
 }
-
-export default App;
